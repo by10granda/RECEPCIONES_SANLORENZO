@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f6f8fb;
+  color: #172026;
+}
+
+input, select, textarea, button {
+  font: inherit;
+}
+
+.card {
+  @apply rounded-3xl border border-slate-200 bg-white shadow-soft;
+}
+
+.field {
+  @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-pasRed focus:ring-4 focus:ring-red-100;
+}
+
+.label {
+  @apply mb-2 block text-sm font-semibold text-slate-700;
+}
+
+.btn-primary {
+  @apply rounded-2xl bg-pasRed px-5 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.btn-secondary {
+  @apply rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-pasRed hover:text-pasRed disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.btn-green {
+  @apply rounded-2xl bg-pasGreen px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-green-200 transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.table-head {
+  @apply bg-slate-50 text-left text-xs font-bold uppercase tracking-wide text-slate-500;
+}
+
+.table-cell {
+  @apply border-b border-slate-100 px-4 py-3 text-sm;
+}
