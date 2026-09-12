@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "config:google": "node scripts/configure-google-env.mjs",
+    "config:vercel": "node scripts/push-vercel-env.mjs",
     "verify:sheets": "node scripts/verify-google-sheets.mjs",
     "start": "next start",
     "lint": "eslint ."

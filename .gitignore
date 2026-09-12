@@ -13,3 +13,6 @@ pnpm-debug.log*
 *.pem
 *.key
 tsconfig.tsbuildinfo
+
+.vercel
+.env*
