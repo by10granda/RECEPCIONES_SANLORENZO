@@ -13,9 +13,10 @@ export default function AdminDashboard() {
   const month = today.slice(3);
   const stats = [
     ["TOTAL GARANTÍAS", rows.length],
-    ["PRODUCTOS RECIBIDOS", rows.filter((w) => w.currentStatus === "PRODUCTO RECIBIDO").length],
-    ["ENVIADOS PARA REVISIÓN", rows.filter((w) => w.currentStatus === "PRODUCTO ENVIADO PARA REVISIÓN").length],
-    ["LISTOS PARA RETIRAR", rows.filter((w) => w.currentStatus === "RETIRAR EN ALMACÉN").length],
+    ["RECIBIDOS EN ALMACÉN", rows.filter((w) => w.currentStatus === "PRODUCTO RECIBIDO EN EL ALMACEN").length],
+    ["ENVIADOS AL PROVEEDOR", rows.filter((w) => w.currentStatus === "PRODUCTO ENVIADO AL PROVEEDOR").length],
+    ["LLEGADOS AL ALMACÉN", rows.filter((w) => w.currentStatus === "PRODUCTO LLEGADO AL ALMACEN").length],
+    ["ENTREGADOS AL CLIENTE", rows.filter((w) => w.currentStatus === "PRODUCTO ENTREGADO AL CLIENTE").length],
     ["GARANTÍAS REGISTRADAS HOY", rows.filter((w) => w.registeredDate === today).length],
     ["GARANTÍAS REGISTRADAS ESTE MES", rows.filter((w) => w.registeredDate.endsWith(month)).length]
   ];

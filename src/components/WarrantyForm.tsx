@@ -8,7 +8,7 @@ import type { Warranty } from "@/lib/types";
 const empty = {
   customerName: "", customerLastName: "", documentType: "Cédula", documentNumber: "", phone: "", email: "",
   saleDate: "", receptionDate: "", invoiceNumber: "", productDescription: "", productCode: "", serialNumber: "",
-  reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO"
+  reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO EN EL ALMACEN"
 };
 
 export function WarrantyForm({ warranty }: { warranty?: Warranty }) {

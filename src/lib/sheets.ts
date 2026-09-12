@@ -73,7 +73,7 @@ function warrantyFromRow(row: string[], index: number): Warranty {
     observations: row[17] || "",
     sellerName: row[18] || "",
     company: row[19] || "VARIEDADES PAS",
-    currentStatus: (row[20] as WarrantyStatus) || "PRODUCTO RECIBIDO",
+    currentStatus: (row[20] as WarrantyStatus) || "PRODUCTO RECIBIDO EN EL ALMACEN",
     lastUpdate: row[21] || "",
     createdBy: row[22] || "",
     modifiedAt: row[23] || "",
@@ -119,7 +119,7 @@ function historyFromRow(row: string[], index: number): StatusHistory {
     date: row[2] || "",
     time: row[3] || "",
     previousStatus: row[4] || "",
-    newStatus: (row[5] as WarrantyStatus) || "PRODUCTO RECIBIDO",
+    newStatus: (row[5] as WarrantyStatus) || "PRODUCTO RECIBIDO EN EL ALMACEN",
     responsibleUser: row[6] || "",
     rowNumber: index + 2
   };

@@ -19,7 +19,7 @@ export const warrantySchema = z.object({
   reportedFailure: required,
   observations: z.string().trim().optional().default(""),
   sellerName: required,
-  currentStatus: z.enum(WARRANTY_STATUSES).default("PRODUCTO RECIBIDO"),
+  currentStatus: z.enum(WARRANTY_STATUSES).default("PRODUCTO RECIBIDO EN EL ALMACEN"),
   confirmDuplicate: z.boolean().optional().default(false)
 });
 
