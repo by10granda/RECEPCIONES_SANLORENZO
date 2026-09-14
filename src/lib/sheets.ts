@@ -197,6 +197,47 @@ export async function appendHistory(history: StatusHistory) {
   });
 }
 
+async function getSheetId(title: string) {
+  const sheets = await client();
+  const spreadsheetId = env("GOOGLE_SHEET_ID");
+  const meta = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheet = meta.data.sheets?.find((s) => s.properties?.title === title);
+  const sheetId = sheet?.properties?.sheetId;
+  if (sheetId === undefined || sheetId === null) throw new Error(`No se encontró la hoja ${title}`);
+  return sheetId;
+}
+
+async function deleteRows(title: string, rowNumbers: number[]) {
+  const rows = [...new Set(rowNumbers)].filter((row) => row > 1).sort((a, b) => b - a);
+  if (!rows.length) return;
+  const sheets = await client();
+  const spreadsheetId = env("GOOGLE_SHEET_ID");
+  const sheetId = await getSheetId(title);
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: rows.map((row) => ({
+        deleteDimension: {
+          range: {
+            sheetId,
+            dimension: "ROWS",
+            startIndex: row - 1,
+            endIndex: row
+          }
+        }
+      }))
+    }
+  });
+}
+
+export async function deleteWarrantyWithHistory(idOrCode: string) {
+  const warranty = await getWarranty(idOrCode);
+  if (!warranty || !warranty.rowNumber) return null;
+  await deleteRows(HISTORIAL, warranty.history.map((h) => h.rowNumber || 0));
+  await deleteRows(GARANTIAS, [warranty.rowNumber]);
+  return warranty;
+}
+
 export function isDuplicate(candidate: Pick<Warranty, "invoiceNumber" | "productCode" | "serialNumber">, warranties: Warranty[], ignoreId?: string) {
   return warranties.some(
     (w) =>
