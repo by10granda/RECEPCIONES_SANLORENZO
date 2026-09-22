@@ -8,7 +8,7 @@ import type { Warranty } from "@/lib/types";
 const empty = {
   customerName: "", customerLastName: "", documentType: "Cédula", documentNumber: "", phone: "", email: "",
   saleDate: "", receptionDate: "", invoiceNumber: "", productDescription: "", productCode: "", serialNumber: "",
-  reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO EN EL ALMACEN"
+  brand: "", reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO EN EL ALMACEN"
 };
 
 export function WarrantyForm({ warranty }: { warranty?: Warranty }) {
@@ -75,6 +75,7 @@ export function WarrantyForm({ warranty }: { warranty?: Warranty }) {
         <Input label="Número de factura" name="invoiceNumber" value={form.invoiceNumber} onChange={set} required />
         <Input label="Descripción del producto" name="productDescription" value={form.productDescription} onChange={set} required />
         <Input label="Código del producto" name="productCode" value={form.productCode} onChange={set} required />
+        <Input label="Marca" name="brand" value={form.brand} onChange={set} />
         <Input label="Número de serie del producto" name="serialNumber" value={form.serialNumber} onChange={set} required emphasis />
       </Section>
       <Section title="C. Datos de recepción de garantía">

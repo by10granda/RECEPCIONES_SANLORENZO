@@ -7,6 +7,7 @@ type PublicWarranty = {
   documentNumber: string;
   invoiceNumber: string;
   productDescription: string;
+  brand?: string;
   productCode: string;
   serialNumber: string;
   saleDate: string;
@@ -44,7 +45,7 @@ export function downloadAdminWarrantyPdf(w: WarrantyWithHistory) {
   const rows = [
     ["Código", w.code], ["Fecha de registro", `${w.registeredDate} - ${w.registeredTime}`], ["Estado", w.currentStatus],
     ["Cliente", `${w.customerName} ${w.customerLastName}`], ["Documento", `${w.documentType} ${w.documentNumber}`], ["Teléfono", w.phone], ["Correo", w.email],
-    ["Fecha venta", w.saleDate], ["Factura", w.invoiceNumber], ["Producto", w.productDescription], ["Código producto", w.productCode], ["Número serie", w.serialNumber],
+    ["Fecha venta", w.saleDate], ["Factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand], ["Código producto", w.productCode], ["Número serie", w.serialNumber],
     ["Ingreso almacén", w.receptionDate], ["Falla", w.reportedFailure], ["Observaciones", w.observations], ["Vendedor", w.sellerName], ["Empresa", w.company]
   ];
   rows.forEach(([label, value]) => { line(doc, label, value, y); y += 8; if (y > 275) { doc.addPage(); y = 20; } });
@@ -61,7 +62,7 @@ export function downloadPublicWarrantyPdf(w: PublicWarranty) {
   const doc = new jsPDF();
   header(doc, "COMPROBANTE DE ESTADO DE GARANTÍA");
   let y = 56;
-  [["Código de garantía", w.code], ["Cliente", w.customerName], ["Documento", w.documentNumber], ["Número de factura", w.invoiceNumber], ["Producto", w.productDescription], ["Código", w.productCode], ["Número de serie", w.serialNumber], ["Fecha de venta", w.saleDate], ["Ingreso al almacén", w.receptionDate], ["Estado actual", w.currentStatus], ["Última actualización", w.lastUpdate]].forEach(([label, value]) => { line(doc, label, value, y); y += 8; });
+  [["Código de garantía", w.code], ["Cliente", w.customerName], ["Documento", w.documentNumber], ["Número de factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand || ""], ["Código", w.productCode], ["Número de serie", w.serialNumber], ["Fecha de venta", w.saleDate], ["Ingreso al almacén", w.receptionDate], ["Estado actual", w.currentStatus], ["Última actualización", w.lastUpdate]].forEach(([label, value]) => { line(doc, label, value, y); y += 8; });
   y += 6;
   doc.setFont("helvetica", "bold");
   doc.text("Historial de estados", 14, y);

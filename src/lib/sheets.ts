@@ -43,7 +43,27 @@ async function ensureSheet(title: string, headers: readonly string[]) {
       valueInputOption: "RAW",
       requestBody: { values: [[...headers]] }
     });
+  } else {
+    const currentHeaders = (firstRow.data.values[0] || []) as string[];
+    const missingHeaders = headers.slice(currentHeaders.length);
+    if (missingHeaders.length) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${title}!${columnName(currentHeaders.length)}1`,
+        valueInputOption: "RAW",
+        requestBody: { values: [missingHeaders] }
+      });
+    }
   }
+}
+
+function columnName(index: number) {
+  let name = "";
+  while (index >= 0) {
+    name = String.fromCharCode((index % 26) + 65) + name;
+    index = Math.floor(index / 26) - 1;
+  }
+  return name;
 }
 
 export async function ensureWorkbook() {
@@ -78,6 +98,7 @@ function warrantyFromRow(row: string[], index: number): Warranty {
     createdBy: row[22] || "",
     modifiedAt: row[23] || "",
     modifiedBy: row[24] || "",
+    brand: row[25] || "",
     rowNumber: index + 2
   };
 }
@@ -108,7 +129,8 @@ function warrantyToRow(w: Warranty) {
     w.lastUpdate,
     w.createdBy,
     w.modifiedAt || "",
-    w.modifiedBy || ""
+    w.modifiedBy || "",
+    w.brand || ""
   ];
 }
 
@@ -132,7 +154,7 @@ function historyToRow(h: StatusHistory) {
 export async function listWarranties() {
   await ensureWorkbook();
   const sheets = await client();
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:Y` });
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:Z` });
   return (res.data.values || []).map((row, index) => warrantyFromRow(row as string[], index)).filter((w) => w.id && w.code);
 }
 
@@ -167,7 +189,7 @@ export async function appendWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.append({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A:Y`,
+    range: `${GARANTIAS}!A:Z`,
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [warrantyToRow(warranty)] }
@@ -179,7 +201,7 @@ export async function updateWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.update({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A${warranty.rowNumber}:Y${warranty.rowNumber}`,
+    range: `${GARANTIAS}!A${warranty.rowNumber}:Z${warranty.rowNumber}`,
     valueInputOption: "RAW",
     requestBody: { values: [warrantyToRow(warranty)] }
   });

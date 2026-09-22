@@ -20,7 +20,7 @@ function loadEnv() {
 }
 
 const warrantyHeaders = [
-  "ID", "Código de garantía", "Fecha de registro", "Hora de registro", "Nombre cliente", "Apellido cliente", "Tipo documento", "Número documento", "Teléfono", "Correo", "Fecha venta", "Fecha recepción almacén", "Número factura", "Descripción producto", "Código producto", "Número serie", "Falla reportada", "Observaciones", "Nombre vendedor", "Empresa", "Estado actual", "Última actualización", "Usuario creador", "Fecha modificación", "Usuario modificador"
+  "ID", "Código de garantía", "Fecha de registro", "Hora de registro", "Nombre cliente", "Apellido cliente", "Tipo documento", "Número documento", "Teléfono", "Correo", "Fecha venta", "Fecha recepción almacén", "Número factura", "Descripción producto", "Código producto", "Número serie", "Falla reportada", "Observaciones", "Nombre vendedor", "Empresa", "Estado actual", "Última actualización", "Usuario creador", "Fecha modificación", "Usuario modificador", "Marca"
 ];
 
 const historyHeaders = ["ID", "Código garantía", "Fecha", "Hora", "Estado anterior", "Estado nuevo", "Usuario responsable"];
@@ -40,8 +40,24 @@ async function ensureSheet(sheets, spreadsheetId, title, headers) {
     await sheets.spreadsheets.values.update({ spreadsheetId, range: `${title}!A1`, valueInputOption: "RAW", requestBody: { values: [headers] } });
     console.log(`Encabezados creados: ${title}`);
   } else {
-    console.log(`Encabezados existentes: ${title}`);
+    const currentHeaders = firstRow.data.values[0] || [];
+    const missingHeaders = headers.slice(currentHeaders.length);
+    if (missingHeaders.length) {
+      await sheets.spreadsheets.values.update({ spreadsheetId, range: `${title}!${columnName(currentHeaders.length)}1`, valueInputOption: "RAW", requestBody: { values: [missingHeaders] } });
+      console.log(`Encabezados agregados: ${title}`);
+    } else {
+      console.log(`Encabezados existentes: ${title}`);
+    }
   }
+}
+
+function columnName(index) {
+  let name = "";
+  while (index >= 0) {
+    name = String.fromCharCode((index % 26) + 65) + name;
+    index = Math.floor(index / 26) - 1;
+  }
+  return name;
 }
 
 async function main() {

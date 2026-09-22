@@ -15,6 +15,7 @@ export const warrantySchema = z.object({
   invoiceNumber: required,
   productDescription: required,
   productCode: required,
+  brand: z.string().trim().optional().default(""),
   serialNumber: required,
   reportedFailure: required,
   observations: z.string().trim().optional().default(""),

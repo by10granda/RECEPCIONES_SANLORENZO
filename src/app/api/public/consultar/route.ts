@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
         documentNumber: maskDocument(w!.documentNumber),
         invoiceNumber: w!.invoiceNumber,
         productDescription: w!.productDescription,
+        brand: w!.brand,
         productCode: w!.productCode,
         serialNumber: w!.serialNumber,
         saleDate: w!.saleDate,
