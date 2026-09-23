@@ -16,6 +16,8 @@ export const warrantySchema = z.object({
   productDescription: required,
   productCode: required,
   brand: z.string().trim().optional().default(""),
+  providerName: z.string().trim().optional().default(""),
+  providerPhone: z.string().trim().optional().default(""),
   serialNumber: required,
   reportedFailure: required,
   observations: z.string().trim().optional().default(""),

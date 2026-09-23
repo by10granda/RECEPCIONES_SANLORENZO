@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
       productDescription: parsed.data.productDescription,
       productCode: parsed.data.productCode,
       brand: parsed.data.brand,
+      providerName: parsed.data.providerName,
+      providerPhone: parsed.data.providerPhone,
       serialNumber: parsed.data.serialNumber,
       reportedFailure: parsed.data.reportedFailure,
       observations: parsed.data.observations || "",

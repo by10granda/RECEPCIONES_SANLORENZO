@@ -34,6 +34,8 @@ export type Warranty = {
   modifiedAt?: string;
   modifiedBy?: string;
   brand: string;
+  providerName: string;
+  providerPhone: string;
   rowNumber?: number;
 };
 
@@ -76,7 +78,9 @@ export const WARRANTY_HEADERS = [
   "Usuario creador",
   "Fecha modificación",
   "Usuario modificador",
-  "Marca"
+  "Marca",
+  "Proveedor",
+  "Teléfono proveedor"
 ] as const;
 
 export const HISTORY_HEADERS = [

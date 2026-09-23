@@ -45,7 +45,7 @@ export function downloadAdminWarrantyPdf(w: WarrantyWithHistory) {
   const rows = [
     ["Código", w.code], ["Fecha de registro", `${w.registeredDate} - ${w.registeredTime}`], ["Estado", w.currentStatus],
     ["Cliente", `${w.customerName} ${w.customerLastName}`], ["Documento", `${w.documentType} ${w.documentNumber}`], ["Teléfono", w.phone], ["Correo", w.email],
-    ["Fecha venta", w.saleDate], ["Factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand], ["Código producto", w.productCode], ["Número serie", w.serialNumber],
+    ["Fecha venta", w.saleDate], ["Factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand], ["Proveedor", w.providerName], ["Teléfono proveedor", w.providerPhone], ["Código producto", w.productCode], ["Número serie", w.serialNumber],
     ["Ingreso almacén", w.receptionDate], ["Falla", w.reportedFailure], ["Observaciones", w.observations], ["Vendedor", w.sellerName], ["Empresa", w.company]
   ];
   rows.forEach(([label, value]) => { line(doc, label, value, y); y += 8; if (y > 275) { doc.addPage(); y = 20; } });

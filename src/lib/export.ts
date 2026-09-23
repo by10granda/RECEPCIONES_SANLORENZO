@@ -13,7 +13,7 @@ function col(index: number) {
 }
 
 export function exportWarrantiesExcel(rows: Warranty[], filename = "garantias.xlsx") {
-  const table = [["Código de garantía", "Cliente", "Documento", "Teléfono", "Factura", "Producto", "Marca", "Código producto", "Serie", "Fecha recepción", "Estado", "Última actualización", "Vendedor"], ...rows.map((w) => [w.code, `${w.customerName} ${w.customerLastName}`, `${w.documentType} ${w.documentNumber}`, w.phone, w.invoiceNumber, w.productDescription, w.brand, w.productCode, w.serialNumber, w.receptionDate, w.currentStatus, w.lastUpdate, w.sellerName])];
+  const table = [["Código de garantía", "Cliente", "Documento", "Teléfono", "Factura", "Producto", "Marca", "Proveedor", "Teléfono proveedor", "Código producto", "Serie", "Fecha recepción", "Estado", "Última actualización", "Vendedor"], ...rows.map((w) => [w.code, `${w.customerName} ${w.customerLastName}`, `${w.documentType} ${w.documentNumber}`, w.phone, w.invoiceNumber, w.productDescription, w.brand, w.providerName, w.providerPhone, w.productCode, w.serialNumber, w.receptionDate, w.currentStatus, w.lastUpdate, w.sellerName])];
   const sheetRows = table.map((row, r) => `<row r="${r + 1}">${row.map((cell, c) => `<c r="${col(c)}${r + 1}" t="inlineStr"><is><t>${xml(String(cell || ""))}</t></is></c>`).join("")}</row>`).join("");
   const files = {
     "[Content_Types].xml": strToU8('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'),
@@ -43,7 +43,7 @@ export function exportWarrantiesPdf(rows: Warranty[], filename = "garantias.pdf"
   let y = 36;
   rows.forEach((w, idx) => {
     if (y > 194) { doc.addPage(); y = 18; }
-    doc.text(`${idx + 1}. ${w.code} | ${w.customerName} ${w.customerLastName} | Factura: ${w.invoiceNumber} | ${w.productDescription} | Marca: ${w.brand || "-"} | Serie: ${w.serialNumber} | ${w.currentStatus}`, 12, y, { maxWidth: 272 });
+    doc.text(`${idx + 1}. ${w.code} | ${w.customerName} ${w.customerLastName} | Factura: ${w.invoiceNumber} | ${w.productDescription} | Marca: ${w.brand || "-"} | Proveedor: ${w.providerName || "-"} | Serie: ${w.serialNumber} | ${w.currentStatus}`, 12, y, { maxWidth: 272 });
     y += 8;
   });
   doc.save(filename);

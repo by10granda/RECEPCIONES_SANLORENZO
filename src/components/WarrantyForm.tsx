@@ -8,7 +8,7 @@ import type { Warranty } from "@/lib/types";
 const empty = {
   customerName: "", customerLastName: "", documentType: "Cédula", documentNumber: "", phone: "", email: "",
   saleDate: "", receptionDate: "", invoiceNumber: "", productDescription: "", productCode: "", serialNumber: "",
-  brand: "", reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO EN EL ALMACEN"
+  brand: "", providerName: "", providerPhone: "", reportedFailure: "", observations: "", sellerName: "", currentStatus: "PRODUCTO RECIBIDO EN EL ALMACEN"
 };
 
 export function WarrantyForm({ warranty }: { warranty?: Warranty }) {
@@ -78,12 +78,16 @@ export function WarrantyForm({ warranty }: { warranty?: Warranty }) {
         <Input label="Marca" name="brand" value={form.brand} onChange={set} />
         <Input label="Número de serie del producto" name="serialNumber" value={form.serialNumber} onChange={set} required emphasis />
       </Section>
-      <Section title="C. Datos de recepción de garantía">
+      <Section title="C. Datos del proveedor">
+        <Input label="Proveedor" name="providerName" value={form.providerName} onChange={set} />
+        <Input label="Número de teléfono de proveedor" name="providerPhone" value={form.providerPhone} onChange={set} />
+      </Section>
+      <Section title="D. Datos de recepción de garantía">
         <Input label="Fecha en la que el producto se deja en el almacén" type="date" name="receptionDate" value={form.receptionDate} onChange={set} required />
         <TextArea label="Problema o falla reportada por el cliente" name="reportedFailure" value={form.reportedFailure} onChange={set} required />
         <TextArea label="Observaciones adicionales" name="observations" value={form.observations} onChange={set} />
       </Section>
-      <Section title="D. Datos del vendedor">
+      <Section title="E. Datos del vendedor">
         <Input label="Nombre del vendedor" name="sellerName" value={form.sellerName} onChange={set} required />
         <Input label="Empresa" name="company" value="VARIEDADES PAS" onChange={() => {}} disabled />
       </Section>

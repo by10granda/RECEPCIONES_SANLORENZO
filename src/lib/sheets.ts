@@ -28,11 +28,24 @@ async function ensureSheet(title: string, headers: readonly string[]) {
   const sheets = await client();
   const spreadsheetId = env("GOOGLE_SHEET_ID");
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
-  const exists = meta.data.sheets?.some((s) => s.properties?.title === title);
+  const sheetMeta = meta.data.sheets?.find((s) => s.properties?.title === title);
+  const exists = Boolean(sheetMeta);
   if (!exists) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
       requestBody: { requests: [{ addSheet: { properties: { title } } }] }
+    });
+  } else if ((sheetMeta?.properties?.gridProperties?.columnCount || 0) < headers.length) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [{
+          updateSheetProperties: {
+            properties: { sheetId: sheetMeta?.properties?.sheetId, gridProperties: { columnCount: headers.length } },
+            fields: "gridProperties.columnCount"
+          }
+        }]
+      }
     });
   }
   const firstRow = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${title}!1:1` });
@@ -99,6 +112,8 @@ function warrantyFromRow(row: string[], index: number): Warranty {
     modifiedAt: row[23] || "",
     modifiedBy: row[24] || "",
     brand: row[25] || "",
+    providerName: row[26] || "",
+    providerPhone: row[27] || "",
     rowNumber: index + 2
   };
 }
@@ -130,7 +145,9 @@ function warrantyToRow(w: Warranty) {
     w.createdBy,
     w.modifiedAt || "",
     w.modifiedBy || "",
-    w.brand || ""
+    w.brand || "",
+    w.providerName || "",
+    w.providerPhone || ""
   ];
 }
 
@@ -154,7 +171,7 @@ function historyToRow(h: StatusHistory) {
 export async function listWarranties() {
   await ensureWorkbook();
   const sheets = await client();
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:Z` });
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:AB` });
   return (res.data.values || []).map((row, index) => warrantyFromRow(row as string[], index)).filter((w) => w.id && w.code);
 }
 
@@ -189,7 +206,7 @@ export async function appendWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.append({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A:Z`,
+    range: `${GARANTIAS}!A:AB`,
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [warrantyToRow(warranty)] }
@@ -201,7 +218,7 @@ export async function updateWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.update({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A${warranty.rowNumber}:Z${warranty.rowNumber}`,
+    range: `${GARANTIAS}!A${warranty.rowNumber}:AB${warranty.rowNumber}`,
     valueInputOption: "RAW",
     requestBody: { values: [warrantyToRow(warranty)] }
   });

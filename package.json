@@ -7,6 +7,7 @@
     "build": "next build",
     "config:google": "node scripts/configure-google-env.mjs",
     "config:vercel": "node scripts/push-vercel-env.mjs",
+    "test:sheets-provider": "node scripts/test-provider-save.mjs",
     "verify:sheets": "node scripts/verify-google-sheets.mjs",
     "start": "next start",
     "lint": "eslint ."

@@ -20,19 +20,24 @@ function loadEnv() {
 }
 
 const warrantyHeaders = [
-  "ID", "Código de garantía", "Fecha de registro", "Hora de registro", "Nombre cliente", "Apellido cliente", "Tipo documento", "Número documento", "Teléfono", "Correo", "Fecha venta", "Fecha recepción almacén", "Número factura", "Descripción producto", "Código producto", "Número serie", "Falla reportada", "Observaciones", "Nombre vendedor", "Empresa", "Estado actual", "Última actualización", "Usuario creador", "Fecha modificación", "Usuario modificador", "Marca"
+  "ID", "Código de garantía", "Fecha de registro", "Hora de registro", "Nombre cliente", "Apellido cliente", "Tipo documento", "Número documento", "Teléfono", "Correo", "Fecha venta", "Fecha recepción almacén", "Número factura", "Descripción producto", "Código producto", "Número serie", "Falla reportada", "Observaciones", "Nombre vendedor", "Empresa", "Estado actual", "Última actualización", "Usuario creador", "Fecha modificación", "Usuario modificador", "Marca", "Proveedor", "Teléfono proveedor"
 ];
 
 const historyHeaders = ["ID", "Código garantía", "Fecha", "Hora", "Estado anterior", "Estado nuevo", "Usuario responsable"];
 
 async function ensureSheet(sheets, spreadsheetId, title, headers) {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
-  const exists = meta.data.sheets?.some((sheet) => sheet.properties?.title === title);
+  const sheetMeta = meta.data.sheets?.find((sheet) => sheet.properties?.title === title);
+  const exists = Boolean(sheetMeta);
   if (!exists) {
     await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title } } }] } });
     console.log(`Pestaña creada: ${title}`);
   } else {
     console.log(`Pestaña existente: ${title}`);
+    if ((sheetMeta?.properties?.gridProperties?.columnCount || 0) < headers.length) {
+      await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ updateSheetProperties: { properties: { sheetId: sheetMeta?.properties?.sheetId, gridProperties: { columnCount: headers.length } }, fields: "gridProperties.columnCount" } }] } });
+      console.log(`Columnas ampliadas: ${title}`);
+    }
   }
 
   const firstRow = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${title}!1:1` });
