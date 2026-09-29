@@ -45,15 +45,39 @@ export async function requireUser() {
   return user;
 }
 
-export function verifyAdminCredentials(username: string, password: string) {
+type AdminUser = {
+  username: string;
+  password?: string;
+  passwordHash?: string;
+};
+
+function configuredAdmins() {
+  const admins: AdminUser[] = [];
   const configuredUser = process.env.ADMIN_USERNAME || "administradorPas";
   const plainPassword = process.env.ADMIN_PASSWORD;
   const passwordHash = process.env.ADMIN_PASSWORD_HASH;
-  if (!safeEqual(username, configuredUser)) return false;
-  if (passwordHash) {
-    const hash = crypto.createHash("sha256").update(password).digest("hex");
-    return safeEqual(hash, passwordHash);
+  if (plainPassword || passwordHash) admins.push({ username: configuredUser, password: plainPassword, passwordHash });
+  if (process.env.ADMIN_USERS_JSON) {
+    try {
+      const parsed = JSON.parse(process.env.ADMIN_USERS_JSON) as AdminUser[];
+      if (Array.isArray(parsed)) admins.push(...parsed.filter((admin) => admin.username && (admin.password || admin.passwordHash)));
+    } catch {
+      throw new Error("ADMIN_USERS_JSON no tiene formato JSON válido");
+    }
   }
-  if (!plainPassword) throw new Error("Configure ADMIN_PASSWORD o ADMIN_PASSWORD_HASH");
-  return safeEqual(password, plainPassword);
+  return admins;
+}
+
+function verifyPassword(admin: AdminUser, password: string) {
+  if (admin.passwordHash) {
+    const hash = crypto.createHash("sha256").update(password).digest("hex");
+    return safeEqual(hash, admin.passwordHash);
+  }
+  return Boolean(admin.password) && safeEqual(password, admin.password || "");
+}
+
+export function verifyAdminCredentials(username: string, password: string) {
+  const admins = configuredAdmins();
+  if (!admins.length) throw new Error("Configure ADMIN_PASSWORD, ADMIN_PASSWORD_HASH o ADMIN_USERS_JSON");
+  return admins.some((admin) => safeEqual(username, admin.username) && verifyPassword(admin, password));
 }

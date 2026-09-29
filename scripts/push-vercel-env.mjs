@@ -5,6 +5,7 @@ const targets = ["production", "preview", "development"];
 const keys = [
   "ADMIN_USERNAME",
   "ADMIN_PASSWORD",
+  "ADMIN_USERS_JSON",
   "SESSION_SECRET",
   "GOOGLE_SHEET_ID",
   "GOOGLE_SERVICE_ACCOUNT_EMAIL",
