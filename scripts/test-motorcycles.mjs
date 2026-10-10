@@ -85,6 +85,21 @@ try {
   assert.equal(stored[11], "SAN LORENZO");
   const guaranteesAfter = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID, range: "GARANTIAS!A:AC" });
   assert.deepEqual(guaranteesAfter.data.values, guaranteesBefore.data.values, "La prueba no debe modificar las garantías");
+  assert.equal((await request(`/api/motos/${moto.id}`, "DELETE", { revision: moto.revision })).status, 401);
+  assert.equal((await request(`/api/motos/${moto.id}`, "DELETE", { revision: available.data.motorcycle.revision }, sessions.get("ALMACEN PAS"))).status, 404);
+  assert.equal((await request(`/api/motos/${moto.id}`, "DELETE", { revision: staleRevision }, cookie)).status, 409);
+  for (const record of [available.data.motorcycle, motos[1]]) {
+    const removed = await request(`/api/motos/${record.id}`, "DELETE", { revision: record.revision }, sessions.get(record.branch));
+    assert.equal(removed.status, 200, removed.data.error);
+    assert.equal((await request(`/api/motos/${record.id}`, "GET", undefined, sessions.get(record.branch))).status, 404);
+  }
+  const remaining = await sheets.spreadsheets.values.get({ spreadsheetId, range: "MOTOS!A2:Q" });
+  const remainingHistory = await sheets.spreadsheets.values.get({ spreadsheetId, range: "HISTORIAL_MOTOS!A2:H" });
+  const removedIds = new Set(motos.map((record) => record.id));
+  assert.ok((remaining.data.values || []).every((row) => !removedIds.has(row[0])));
+  assert.ok((remainingHistory.data.values || []).every((row) => !removedIds.has(row[1])));
+  assert.deepEqual(remaining.data.values || [], persisted.data.values.filter((row) => !removedIds.has(row[0])), "Las otras motos no deben modificarse al borrar");
+  console.log("Borrado completo de registros e historial, protegido por sucursal y revision: correcto.");
   console.log("Prueba correcta: registro, fechas, campos obligatorios, PDF, edición, retrocesos e historial.");
   console.log("Aislamiento entre sucursales y guardado en hoja independiente: correctos. Garantías sin cambios.");
 } finally {

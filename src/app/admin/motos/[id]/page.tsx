@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MotoBadge } from "@/components/MotoBadge";
 import { MotorcycleForm } from "@/components/MotorcycleForm";
+import { DeleteMotorcycleButton } from "@/components/DeleteMotorcycleButton";
 import { MOTORCYCLE_STATUSES, type Motorcycle, type MotorcycleHistory, type MotorcycleStatus } from "@/lib/motorcycles";
 
 export default function MotorcycleDetailPage() {
@@ -114,6 +115,7 @@ export default function MotorcycleDetailPage() {
           <button className="btn-secondary" disabled={loading || saving || editing} onClick={() => { setEditing(true); setMessage(""); setError(""); }}>Editar datos</button>
           <button className="btn-secondary" disabled={loading || saving || editing} onClick={refresh}>Actualizar</button>
           <button className="btn-secondary" onClick={() => window.print()}>Imprimir</button>
+          <DeleteMotorcycleButton motorcycle={moto} disabled={loading || saving || editing} onDeleted={() => window.location.assign("/admin/motos")} />
         </div>
       </div>
       {message && <p role="status" className="rounded-2xl border border-green-200 bg-green-50 p-4 font-semibold text-green-700">{message}</p>}

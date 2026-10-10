@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { error, handleApiError, json } from "@/lib/api";
 import { requireUser } from "@/lib/auth";
-import { getMotorcycle, getMotorcycleHistory, listMotorcycles, saveMotorcycle } from "@/lib/motorcycle-sheets";
+import { deleteMotorcycle, getMotorcycle, getMotorcycleHistory, listMotorcycles, saveMotorcycle } from "@/lib/motorcycle-sheets";
 import { motorcycleEditSchema, requiredMotorcycleFields } from "@/lib/motorcycle-validation";
 import { validateIdPdfUrl } from "@/lib/motorcycle-pdf";
 import { sanitizeObject } from "@/lib/validators";
@@ -42,5 +42,18 @@ export async function PUT(request: NextRequest, context: Context) {
     const motorcycle = { ...current, ...parsed.data, updatedAt: now.stamp, updatedBy: user.username, revision: crypto.randomUUID() };
     await saveMotorcycle(motorcycle, { id: crypto.randomUUID(), motorcycleId: id, timestamp: now.stamp, previousStatus: current.status, newStatus: current.status, username: user.username, action: "EDICION", details: JSON.stringify(changes) });
     return json({ motorcycle });
+  } catch (err) { return handleApiError(err); }
+}
+
+export async function DELETE(request: NextRequest, context: Context) {
+  try {
+    const user = await requireUser();
+    const { id } = await context.params;
+    const body = await request.json();
+    if (typeof body?.revision !== "string" || !body.revision || body.revision.length > 100) return error("Recargue la moto antes de borrarla.", 422);
+    const result = await deleteMotorcycle(id, user.branch, body.revision);
+    if (result.error === "missing") return error("Moto no encontrada", 404);
+    if (result.error === "conflict") return error("La moto fue modificada por otro usuario. Recargue y confirme nuevamente antes de borrarla.", 409);
+    return json({ ok: true, deleted: result.deleted });
   } catch (err) { return handleApiError(err); }
 }

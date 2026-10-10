@@ -83,3 +83,24 @@ export async function saveMotorcycle(moto: Motorcycle, history: MotorcycleHistor
   // Record and history are committed atomically in the independent motorcycle workbook.
   await sheets.spreadsheets.batchUpdate({ spreadsheetId: id, requestBody: { requests: [change, { appendCells: { sheetId: historyId, rows: [historyRow], fields: "userEnteredValue" } }] } });
 }
+
+export async function deleteMotorcycle(id: string, branch: Branch, revision: string) {
+  const motorcycle = await getMotorcycle(id, branch);
+  if (!motorcycle) return { error: "missing" as const };
+  if (motorcycle.revision !== revision) return { error: "conflict" as const };
+  const sheets = client();
+  const workbookId = spreadsheetId();
+  const metadata = await sheets.spreadsheets.get({ spreadsheetId: workbookId });
+  const movements = await sheets.spreadsheets.values.get({ spreadsheetId: workbookId, range: `${HISTORY}!A2:H` });
+  const mainId = metadata.data.sheets?.find((sheet) => sheet.properties?.title === MAIN)?.properties?.sheetId;
+  const historyId = metadata.data.sheets?.find((sheet) => sheet.properties?.title === HISTORY)?.properties?.sheetId;
+  if (mainId == null || historyId == null || !motorcycle.rowNumber) throw new Error("No se encontraron las filas de la moto.");
+  const rows = (movements.data.values || []).map((row, index) => ({ id: row[1], rowNumber: index + 2 })).filter((row) => row.id === id).sort((a, b) => b.rowNumber - a.rowNumber);
+  // One atomic operation removes the moto and every history row, without partial deletion.
+  const requests: sheets_v4.Schema$Request[] = [
+    { deleteDimension: { range: { sheetId: mainId, dimension: "ROWS", startIndex: motorcycle.rowNumber - 1, endIndex: motorcycle.rowNumber } } },
+    ...rows.map((row) => ({ deleteDimension: { range: { sheetId: historyId, dimension: "ROWS", startIndex: row.rowNumber - 1, endIndex: row.rowNumber } } }))
+  ];
+  await sheets.spreadsheets.batchUpdate({ spreadsheetId: workbookId, requestBody: { requests } });
+  return { deleted: { id: motorcycle.id, code: motorcycle.code } };
+}

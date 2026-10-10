@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MotoBadge } from "@/components/MotoBadge";
+import { DeleteMotorcycleButton } from "@/components/DeleteMotorcycleButton";
 import { MOTORCYCLE_STATUSES, type Motorcycle } from "@/lib/motorcycles";
 
 export default function MotorcyclesPage() {
@@ -15,6 +16,7 @@ export default function MotorcyclesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -57,6 +59,7 @@ export default function MotorcyclesPage() {
         <label><span className="label">Marca</span><select className="field" value={brand} onChange={(event) => { setBrand(event.target.value); setPage(1); }}><option value="">Todas las marcas</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </section>
       {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700"><p className="font-semibold">{error}</p><button className="btn-secondary mt-3" disabled={loading} onClick={() => { setLoading(true); setError(""); setReload((value) => value + 1); }}>Reintentar</button></div>}
+      {message && <p role="status" className="rounded-2xl border border-green-200 bg-green-50 p-4 font-semibold text-green-700">{message}</p>}
       {loading ? <p role="status">Cargando motos...</p> : !error && (
         <section className="card overflow-hidden">
           <div className="overflow-x-auto">
@@ -67,7 +70,7 @@ export default function MotorcyclesPage() {
                 <tr key={moto.id}>
                   <td className="table-cell font-bold">{moto.code}</td><td className="table-cell">{moto.description}</td><td className="table-cell">{moto.brand}</td><td className="table-cell font-bold">{moto.chassisNumber}</td>
                   <td className="table-cell whitespace-nowrap">{moto.receivedAt || "-"}</td><td className="table-cell"><MotoBadge status={moto.status} /></td><td className="table-cell">{moto.branch || "-"}</td><td className="table-cell whitespace-nowrap">{moto.updatedAt || "-"}</td>
-                  <td className="table-cell"><Link className="whitespace-nowrap font-bold text-pasRed" href={`/admin/motos/${encodeURIComponent(moto.id)}`}>Ver / Editar<span className="sr-only"> {moto.code}</span></Link></td>
+                  <td className="table-cell"><div className="flex flex-wrap items-center gap-3"><Link className="whitespace-nowrap font-bold text-pasRed" href={`/admin/motos/${encodeURIComponent(moto.id)}`}>Ver / Editar<span className="sr-only"> {moto.code}</span></Link><DeleteMotorcycleButton motorcycle={moto} disabled={loading} onDeleted={() => { setMotorcycles((current) => current.filter((entry) => entry.id !== moto.id)); setMessage(`Moto ${moto.code} e historial borrados correctamente.`); }} /></div></td>
                 </tr>
               ))}</tbody>
             </table>

@@ -88,6 +88,10 @@ La entrega requiere numero de matricula. Se permite retroceder con confirmacion 
 Registro y movimiento de historial se guardan juntos en una peticion atomica a Sheets.
 Las revisiones rechazan ediciones basadas en datos desactualizados; Sheets no es una base transaccional con bloqueo entre escritores simultaneos.
 
+El boton Borrar solicita confirmacion y elimina permanentemente la moto y todo su historial,
+en una sola operacion de Sheets. Solo puede borrarla una cuenta de su sucursal.
+No elimina archivos de Drive u otros servicios: elimina sus enlaces del registro.
+
 La cedula se ingresa como URL HTTPS, no se sube el archivo. Se admite cualquier formato y enlaces de Drive.
 Se valida la URL (maximo 2000 caracteres, sin credenciales), sin consultar Drive API ni descargar archivos.
 No se verifica disponibilidad, tipo MIME, contenido ni tamano del archivo externo.
