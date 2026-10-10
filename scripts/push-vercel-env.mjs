@@ -6,6 +6,7 @@ const keys = [
   "ADMIN_USERNAME",
   "ADMIN_PASSWORD",
   "ADMIN_USERS_JSON",
+  "ALMACEN_ADMIN_USERS_JSON",
   "SESSION_SECRET",
   "GOOGLE_SHEET_ID",
   "GOOGLE_SERVICE_ACCOUNT_EMAIL",
@@ -27,15 +28,17 @@ function parseEnv(text) {
 }
 
 const env = parseEnv(fs.readFileSync(".env.local", "utf8"));
+const requestedKeys = process.argv.slice(2);
+if (requestedKeys.some((key) => !keys.includes(key))) throw new Error("Variable no permitida");
+const selectedKeys = requestedKeys.length ? requestedKeys : keys;
 
-for (const key of keys) {
+for (const key of selectedKeys) {
   if (!env.get(key)) throw new Error(`Falta ${key} en .env.local`);
 }
 
-for (const key of keys) {
+for (const key of selectedKeys) {
   for (const target of targets) {
-    spawnSync("npx", ["vercel", "env", "rm", key, target, "--yes"], { stdio: "ignore", shell: true });
-    const add = spawnSync("npx", ["vercel", "env", "add", key, target], {
+    const add = spawnSync("npx", ["vercel", "env", "add", key, target, "--force", "--yes"], {
       input: env.get(key),
       encoding: "utf8",
       stdio: ["pipe", "pipe", "pipe"],

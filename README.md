@@ -54,7 +54,26 @@ El sistema trabaja con estas pestañas:
 
 Si no existen, la aplicación las crea automáticamente con los encabezados requeridos. No elimina ni sobrescribe información existente; cada nueva garantía se agrega como una nueva fila.
 
-## Rutas
+## Sucursales
+
+El sistema separa las garantias entre `SAN LORENZO` y `ALMACEN PAS`.
+Los registros anteriores sin columna Sucursal pertenecen a San Lorenzo.
+La columna `Sucursal` se agrega al final de GARANTIAS sin mover datos existentes.
+Los codigos siguen siendo unicos en toda la hoja; el historial permanece asociado a su codigo.
+
+Las cuentas existentes (`ADMIN_USERNAME`, `ADMIN_USERS_JSON`) acceden a San Lorenzo.
+`ALMACEN_ADMIN_USERS_JSON` contiene las cuentas de ALMACEN PAS en formato JSON:
+
+```json
+[{"username":"nombre-de-usuario","passwordHash":"hash-sha256-hexadecimal"}]
+```
+
+El selector en la cabecera cierra la sesion al cambiar de sucursal y solicita un nuevo login.
+El backend filtra y autoriza las operaciones por la sucursal de la sesion.
+La consulta publica sigue funcionando para ambas sucursales y muestra la sucursal del registro.
+Actualizar las variables en Vercel requiere redeployar para que entren en vigor.
+
+## Paginas
 
 - `/` redirige al portal público.
 - `/consultar` portal público para clientes.

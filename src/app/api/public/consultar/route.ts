@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       warranties: result.filter(Boolean).map((w) => ({
         id: w!.id,
         code: w!.code,
+        branch: w!.branch,
         customerName: `${w!.customerName} ${w!.customerLastName}`,
         documentNumber: maskDocument(w!.documentNumber),
         invoiceNumber: w!.invoiceNumber,

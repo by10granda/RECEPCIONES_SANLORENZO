@@ -1,9 +1,12 @@
 import { google } from "googleapis";
 import { HISTORY_HEADERS, type StatusHistory, type Warranty, WARRANTY_HEADERS, type WarrantyStatus } from "./types";
 import { nowParts } from "./time";
+import { isBranch, type Branch } from "./branches";
 
 const GARANTIAS = "GARANTIAS";
 const HISTORIAL = "HISTORIAL_ESTADOS";
+let workbookReadyUntil = 0;
+let workbookInitialization: Promise<void> | undefined;
 
 function env(name: string) {
   const value = process.env[name];
@@ -33,7 +36,7 @@ async function ensureSheet(title: string, headers: readonly string[]) {
   if (!exists) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
-      requestBody: { requests: [{ addSheet: { properties: { title } } }] }
+      requestBody: { requests: [{ addSheet: { properties: { title, gridProperties: { columnCount: headers.length } } } }] }
     });
   } else if ((sheetMeta?.properties?.gridProperties?.columnCount || 0) < headers.length) {
     await sheets.spreadsheets.batchUpdate({
@@ -80,8 +83,16 @@ function columnName(index: number) {
 }
 
 export async function ensureWorkbook() {
-  await ensureSheet(GARANTIAS, WARRANTY_HEADERS);
-  await ensureSheet(HISTORIAL, HISTORY_HEADERS);
+  if (Date.now() < workbookReadyUntil) return;
+  // Avoid repeatedly checking unchanged headers and exhausting Sheets read quotas.
+  if (!workbookInitialization) {
+    workbookInitialization = (async () => {
+      await ensureSheet(GARANTIAS, WARRANTY_HEADERS);
+      await ensureSheet(HISTORIAL, HISTORY_HEADERS);
+      workbookReadyUntil = Date.now() + 5 * 60_000;
+    })().finally(() => { workbookInitialization = undefined; });
+  }
+  await workbookInitialization;
 }
 
 function warrantyFromRow(row: string[], index: number): Warranty {
@@ -114,6 +125,7 @@ function warrantyFromRow(row: string[], index: number): Warranty {
     brand: row[25] || "",
     providerName: row[26] || "",
     providerPhone: row[27] || "",
+    branch: isBranch(row[28]) ? row[28] : "SAN LORENZO",
     rowNumber: index + 2
   };
 }
@@ -147,7 +159,8 @@ function warrantyToRow(w: Warranty) {
     w.modifiedBy || "",
     w.brand || "",
     w.providerName || "",
-    w.providerPhone || ""
+    w.providerPhone || "",
+    w.branch
   ];
 }
 
@@ -168,11 +181,11 @@ function historyToRow(h: StatusHistory) {
   return [h.id, h.warrantyCode, h.date, h.time, h.previousStatus, h.newStatus, h.responsibleUser];
 }
 
-export async function listWarranties() {
+export async function listWarranties(branch?: Branch) {
   await ensureWorkbook();
   const sheets = await client();
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:AB` });
-  return (res.data.values || []).map((row, index) => warrantyFromRow(row as string[], index)).filter((w) => w.id && w.code);
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: env("GOOGLE_SHEET_ID"), range: `${GARANTIAS}!A2:AC` });
+  return (res.data.values || []).map((row, index) => warrantyFromRow(row as string[], index)).filter((w) => w.id && w.code && (!branch || w.branch === branch));
 }
 
 export async function listHistory() {
@@ -182,8 +195,8 @@ export async function listHistory() {
   return (res.data.values || []).map((row, index) => historyFromRow(row as string[], index)).filter((h) => h.id && h.warrantyCode);
 }
 
-export async function getWarranty(idOrCode: string) {
-  const warranties = await listWarranties();
+export async function getWarranty(idOrCode: string, branch?: Branch) {
+  const warranties = await listWarranties(branch);
   const warranty = warranties.find((w) => w.id === idOrCode || w.code === idOrCode);
   if (!warranty) return null;
   const history = (await listHistory()).filter((h) => h.warrantyCode === warranty.code);
@@ -206,7 +219,7 @@ export async function appendWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.append({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A:AB`,
+    range: `${GARANTIAS}!A:AC`,
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [warrantyToRow(warranty)] }
@@ -218,7 +231,7 @@ export async function updateWarranty(warranty: Warranty) {
   const sheets = await client();
   await sheets.spreadsheets.values.update({
     spreadsheetId: env("GOOGLE_SHEET_ID"),
-    range: `${GARANTIAS}!A${warranty.rowNumber}:AB${warranty.rowNumber}`,
+    range: `${GARANTIAS}!A${warranty.rowNumber}:AC${warranty.rowNumber}`,
     valueInputOption: "RAW",
     requestBody: { values: [warrantyToRow(warranty)] }
   });
@@ -269,8 +282,8 @@ async function deleteRows(title: string, rowNumbers: number[]) {
   });
 }
 
-export async function deleteWarrantyWithHistory(idOrCode: string) {
-  const warranty = await getWarranty(idOrCode);
+export async function deleteWarrantyWithHistory(idOrCode: string, branch: Branch) {
+  const warranty = await getWarranty(idOrCode, branch);
   if (!warranty || !warranty.rowNumber) return null;
   await deleteRows(HISTORIAL, warranty.history.map((h) => h.rowNumber || 0));
   await deleteRows(GARANTIAS, [warranty.rowNumber]);

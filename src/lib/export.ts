@@ -14,6 +14,8 @@ function col(index: number) {
 
 export function exportWarrantiesExcel(rows: Warranty[], filename = "garantias.xlsx") {
   const table = [["Código de garantía", "Cliente", "Documento", "Teléfono", "Factura", "Producto", "Marca", "Proveedor", "Teléfono proveedor", "Código producto", "Serie", "Fecha recepción", "Estado", "Última actualización", "Vendedor"], ...rows.map((w) => [w.code, `${w.customerName} ${w.customerLastName}`, `${w.documentType} ${w.documentNumber}`, w.phone, w.invoiceNumber, w.productDescription, w.brand, w.providerName, w.providerPhone, w.productCode, w.serialNumber, w.receptionDate, w.currentStatus, w.lastUpdate, w.sellerName])];
+  table[0].push("Sucursal");
+  rows.forEach((w, index) => table[index + 1].push(w.branch));
   const sheetRows = table.map((row, r) => `<row r="${r + 1}">${row.map((cell, c) => `<c r="${col(c)}${r + 1}" t="inlineStr"><is><t>${xml(String(cell || ""))}</t></is></c>`).join("")}</row>`).join("");
   const files = {
     "[Content_Types].xml": strToU8('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'),

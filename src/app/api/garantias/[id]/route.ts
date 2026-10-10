@@ -9,9 +9,9 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_: NextRequest, ctx: Ctx) {
   try {
-    await requireUser();
+    const user = await requireUser();
     const { id } = await ctx.params;
-    const warranty = await getWarranty(decodeURIComponent(id));
+    const warranty = await getWarranty(decodeURIComponent(id), user.branch);
     if (!warranty) return error("Garantía no encontrada", 404);
     return json({ warranty });
   } catch (err) {
@@ -23,7 +23,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   try {
     const user = await requireUser();
     const { id } = await ctx.params;
-    const current = await getWarranty(decodeURIComponent(id));
+    const current = await getWarranty(decodeURIComponent(id), user.branch);
     if (!current) return error("Garantía no encontrada", 404);
     const parsed = warrantyUpdateSchema.safeParse(sanitizeObject(await request.json()));
     if (!parsed.success) return error(parsed.error.errors[0]?.message || "Datos inválidos", 422);
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
       modifiedAt: nowParts().stamp,
       modifiedBy: user.username
     };
-    const existing = await listWarranties();
+    const existing = await listWarranties(user.branch);
     if (isDuplicate(updated, existing, updated.id)) return error("Parece existir una garantía duplicada para esta factura, código y serie.", 409);
     await updateWarranty(updated);
     return json({ warranty: updated });
@@ -50,9 +50,9 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
 
 export async function DELETE(_: NextRequest, ctx: Ctx) {
   try {
-    await requireUser();
+    const user = await requireUser();
     const { id } = await ctx.params;
-    const deleted = await deleteWarrantyWithHistory(decodeURIComponent(id));
+    const deleted = await deleteWarrantyWithHistory(decodeURIComponent(id), user.branch);
     if (!deleted) return error("Garantía no encontrada", 404);
     return json({ ok: true, deleted: { id: deleted.id, code: deleted.code } });
   } catch (err) {

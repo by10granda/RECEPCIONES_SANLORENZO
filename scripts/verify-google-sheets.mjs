@@ -23,6 +23,8 @@ const warrantyHeaders = [
   "ID", "Código de garantía", "Fecha de registro", "Hora de registro", "Nombre cliente", "Apellido cliente", "Tipo documento", "Número documento", "Teléfono", "Correo", "Fecha venta", "Fecha recepción almacén", "Número factura", "Descripción producto", "Código producto", "Número serie", "Falla reportada", "Observaciones", "Nombre vendedor", "Empresa", "Estado actual", "Última actualización", "Usuario creador", "Fecha modificación", "Usuario modificador", "Marca", "Proveedor", "Teléfono proveedor"
 ];
 
+warrantyHeaders.push("Sucursal");
+
 const historyHeaders = ["ID", "Código garantía", "Fecha", "Hora", "Estado anterior", "Estado nuevo", "Usuario responsable"];
 
 async function ensureSheet(sheets, spreadsheetId, title, headers) {
@@ -30,7 +32,7 @@ async function ensureSheet(sheets, spreadsheetId, title, headers) {
   const sheetMeta = meta.data.sheets?.find((sheet) => sheet.properties?.title === title);
   const exists = Boolean(sheetMeta);
   if (!exists) {
-    await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title } } }] } });
+    await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title, gridProperties: { columnCount: headers.length } } } }] } });
     console.log(`Pestaña creada: ${title}`);
   } else {
     console.log(`Pestaña existente: ${title}`);

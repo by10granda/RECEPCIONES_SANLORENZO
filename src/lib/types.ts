@@ -1,3 +1,5 @@
+import type { Branch } from "./branches";
+
 export const WARRANTY_STATUSES = [
   "PRODUCTO RECIBIDO EN EL ALMACEN",
   "PRODUCTO ENVIADO AL PROVEEDOR",
@@ -36,6 +38,7 @@ export type Warranty = {
   brand: string;
   providerName: string;
   providerPhone: string;
+  branch: Branch;
   rowNumber?: number;
 };
 
@@ -80,7 +83,8 @@ export const WARRANTY_HEADERS = [
   "Usuario modificador",
   "Marca",
   "Proveedor",
-  "Teléfono proveedor"
+  "Teléfono proveedor",
+  "Sucursal"
 ] as const;
 
 export const HISTORY_HEADERS = [

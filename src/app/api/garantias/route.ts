@@ -7,8 +7,8 @@ import { sanitizeObject, warrantySchema } from "@/lib/validators";
 
 export async function GET() {
   try {
-    await requireUser();
-    return json({ warranties: await listWarranties() });
+    const user = await requireUser();
+    return json({ warranties: await listWarranties(user.branch) });
   } catch (err) {
     return handleApiError(err);
   }
@@ -19,13 +19,14 @@ export async function POST(request: NextRequest) {
     const user = await requireUser();
     const parsed = warrantySchema.safeParse(sanitizeObject(await request.json()));
     if (!parsed.success) return error(parsed.error.errors[0]?.message || "Datos inválidos", 422);
-    const existing = await listWarranties();
+    const existing = await listWarranties(user.branch);
     if (!parsed.data.confirmDuplicate && isDuplicate(parsed.data, existing)) return error("Parece existir una garantía duplicada para esta factura, código y serie.", 409);
     const now = nowParts();
     const code = await generateWarrantyCode();
     const warranty = {
       id: crypto.randomUUID(),
       code,
+      branch: user.branch,
       registeredDate: now.date,
       registeredTime: now.time,
       customerName: parsed.data.customerName,

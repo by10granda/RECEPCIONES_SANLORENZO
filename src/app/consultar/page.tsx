@@ -9,6 +9,7 @@ import { downloadPublicWarrantyPdf } from "@/lib/pdf";
 type PublicWarranty = {
   id: string;
   code: string;
+  branch: string;
   customerName: string;
   documentNumber: string;
   invoiceNumber: string;
@@ -78,6 +79,7 @@ export default function PublicSearchPage() {
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[
+                  ["Sucursal", w.branch],
                   ["Cliente", w.customerName],
                   ["Factura", w.invoiceNumber],
                   ["Producto", w.productDescription],

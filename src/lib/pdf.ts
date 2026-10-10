@@ -8,6 +8,7 @@ type PublicWarranty = {
   invoiceNumber: string;
   productDescription: string;
   brand?: string;
+  branch?: string;
   productCode: string;
   serialNumber: string;
   saleDate: string;
@@ -43,6 +44,7 @@ export function downloadAdminWarrantyPdf(w: WarrantyWithHistory) {
   header(doc, "SISTEMA DE GARANTÍAS");
   let y = 54;
   const rows = [
+    ["Sucursal", w.branch],
     ["Código", w.code], ["Fecha de registro", `${w.registeredDate} - ${w.registeredTime}`], ["Estado", w.currentStatus],
     ["Cliente", `${w.customerName} ${w.customerLastName}`], ["Documento", `${w.documentType} ${w.documentNumber}`], ["Teléfono", w.phone], ["Correo", w.email],
     ["Fecha venta", w.saleDate], ["Factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand], ["Proveedor", w.providerName], ["Teléfono proveedor", w.providerPhone], ["Código producto", w.productCode], ["Número serie", w.serialNumber],
@@ -62,6 +64,8 @@ export function downloadPublicWarrantyPdf(w: PublicWarranty) {
   const doc = new jsPDF();
   header(doc, "COMPROBANTE DE ESTADO DE GARANTÍA");
   let y = 56;
+  line(doc, "Sucursal", w.branch || "SAN LORENZO", y);
+  y += 8;
   [["Código de garantía", w.code], ["Cliente", w.customerName], ["Documento", w.documentNumber], ["Número de factura", w.invoiceNumber], ["Producto", w.productDescription], ["Marca", w.brand || ""], ["Código", w.productCode], ["Número de serie", w.serialNumber], ["Fecha de venta", w.saleDate], ["Ingreso al almacén", w.receptionDate], ["Estado actual", w.currentStatus], ["Última actualización", w.lastUpdate]].forEach(([label, value]) => { line(doc, label, value, y); y += 8; });
   y += 6;
   doc.setFont("helvetica", "bold");

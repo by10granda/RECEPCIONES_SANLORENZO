@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, ctx: Ctx) {
   try {
     const user = await requireUser();
     const { id } = await ctx.params;
-    const warranty = await getWarranty(decodeURIComponent(id));
+    const warranty = await getWarranty(decodeURIComponent(id), user.branch);
     if (!warranty) return error("Garantía no encontrada", 404);
     const parsed = statusUpdateSchema.safeParse(await request.json());
     if (!parsed.success) return error("Estado inválido", 422);
