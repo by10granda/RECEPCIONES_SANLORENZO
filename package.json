@@ -10,6 +10,7 @@
     "test:admin-logins": "node scripts/test-admin-logins.mjs",
     "test:sheets-provider": "node scripts/test-provider-save.mjs",
     "verify:sheets": "node scripts/verify-google-sheets.mjs",
+    "verify:motos": "node scripts/verify-motorcycle-sheets.mjs",
     "start": "next start",
     "lint": "eslint ."
   },

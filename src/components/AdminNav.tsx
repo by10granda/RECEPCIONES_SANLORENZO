@@ -80,6 +80,7 @@ export function AdminNav() {
           <nav className="flex flex-wrap gap-2">
             <Link className="btn-secondary py-2" href="/admin">Panel</Link>
             <Link className="btn-secondary py-2" href="/admin/garantias">Garantías</Link>
+            <Link className="btn-secondary py-2" href="/admin/motos">Motos</Link>
             <Link className="btn-green py-2" href="/admin/garantias/nueva">Nueva garantía</Link>
             <Link className="btn-secondary py-2" href="/admin/reportes">Reportes</Link>
             <button className="btn-primary py-2" disabled={loading} onClick={() => void logout()}>{loading ? "Cerrando sesión..." : "Cerrar sesión"}</button>

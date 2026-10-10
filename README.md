@@ -75,6 +75,29 @@ Actualizar las variables en Vercel requiere redeployar para que entren en vigor.
 
 ## Paginas
 
+## Motos
+
+Modulo independiente en `/admin/motos`, con registro, listado, filtros y detalle editable.
+Usa `GOOGLE_MOTOS_SHEET_ID`, diferente del archivo de garantias.
+Comparte la hoja de motos con la misma Service Account como Editor y ejecuta `npm run verify:motos`.
+Las pestañas `MOTOS` y `HISTORIAL_MOTOS` se crean si faltan; los encabezados existentes no se sobrescriben si son incompatibles.
+
+Cada sucursal ve y modifica solo sus motos. El alta acepta codigo, descripcion, marca y chasis,
+asigna DISPONIBLE y fecha de ingreso automaticamente. La venta requiere factura, observaciones y enlace PDF.
+La entrega requiere numero de matricula. Se permite retroceder con confirmacion y corregir datos sin borrar el historial.
+Registro y movimiento de historial se guardan juntos en una peticion atomica a Sheets.
+Las revisiones rechazan ediciones basadas en datos desactualizados; Sheets no es una base transaccional con bloqueo entre escritores simultaneos.
+
+La cedula se ingresa como URL, no se sube el archivo. Solo se acepta HTTPS.
+Para enlaces externos se exige extension `.pdf` en la ruta; no se descarga el contenido ni se verifica su MIME,
+para evitar consultas del servidor a direcciones arbitrarias. El administrador debe comprobar ambas caras del documento.
+Para enlaces de Google Drive se verifica `mimeType=application/pdf` y que no este en la papelera.
+Habilita Google Drive API y comparte el PDF con el correo de la Service Account como Lector.
+Manten restringidos los documentos de identidad, no los publiques ni los compartas con cualquier persona que tenga el enlace.
+No se exponen motos ni documentos en el portal publico.
+
+## Rutas Del Sistema
+
 - `/` redirige al portal público.
 - `/consultar` portal público para clientes.
 - `/login` acceso administrativo.
