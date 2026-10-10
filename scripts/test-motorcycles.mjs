@@ -8,6 +8,7 @@ const baseUrl = (process.argv[2] || "http://localhost:3000").replace(/\/$/, "");
 const almacenAccount = JSON.parse(fs.readFileSync(0, "utf8"));
 const auth = new google.auth.JWT({ email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL, key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"), scopes: ["https://www.googleapis.com/auth/spreadsheets"] });
 const sheets = google.sheets({ version: "v4", auth });
+google.options({ timeout: 30000 });
 const spreadsheetId = process.env.GOOGLE_MOTOS_SHEET_ID;
 assert.notEqual(spreadsheetId, process.env.GOOGLE_SHEET_ID);
 const testCode = `TEST-MOTOS-${crypto.randomUUID()}`;
@@ -16,7 +17,7 @@ const pause = () => new Promise((resolve) => setTimeout(resolve, 3000));
 
 async function request(path, method = "GET", body, cookie) {
   await pause();
-  const response = await fetch(`${baseUrl}${path}`, { method, headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  const response = await fetch(`${baseUrl}${path}`, { method, signal: AbortSignal.timeout(30000), headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
   return { status: response.status, data: await response.json(), cookie: response.headers.get("set-cookie")?.split(";")[0] };
 }
 
