@@ -59,7 +59,7 @@ export default function MotorcycleDetailPage() {
       return;
     }
     if (transition.status === "VENDIDA CON MATRICULA EN PROCESO" && [transition.invoiceNumber, transition.observations, transition.idPdfUrl].some((value) => !value.trim())) {
-      setError("Para registrar la venta, complete la factura, las observaciones y la URL del PDF.");
+      setError("Para registrar la venta, complete la factura, las observaciones y el enlace al documento de cédula.");
       return;
     }
     if (transition.status === "MATRICULA ENTREGADA" && !transition.licenseNumber.trim()) {
@@ -131,7 +131,7 @@ export default function MotorcycleDetailPage() {
               ["Registrada por", moto.createdBy], ["Última actualización", moto.updatedAt], ["Actualizada por", moto.updatedBy], ["Observaciones", moto.observations]
             ].map(([label, value]) => <div className="min-w-0 rounded-2xl bg-slate-50 p-3" key={label}><dt className="text-xs font-black uppercase text-slate-500">{label}</dt><dd className="mt-1 whitespace-pre-wrap break-words font-semibold">{value || "-"}</dd></div>)}
             <div className="min-w-0 rounded-2xl bg-slate-50 p-3 md:col-span-2">
-              <dt className="text-xs font-black uppercase text-slate-500">PDF de cédula (ambos lados)</dt>
+              <dt className="text-xs font-black uppercase text-slate-500">Documento de cédula (ambos lados)</dt>
               <dd className="mt-1 break-all">{pdfUrl ? <a className="font-bold text-pasRed underline" href={pdfUrl} target="_blank" rel="noreferrer">{pdfUrl}</a> : moto.idPdfUrl ? "El enlace guardado no es una URL HTTPS válida. Corríjalo en Editar datos." : "Sin documento registrado."}</dd>
             </div>
           </dl>
@@ -160,9 +160,9 @@ export default function MotorcycleDetailPage() {
             <label><span className="label">Número de factura *</span><input className="field" name="invoiceNumber" value={transition.invoiceNumber} required onChange={(event) => setTransition((current) => ({ ...current, invoiceNumber: event.target.value }))} /></label>
             <label className="md:col-span-2"><span className="label">Observaciones de la venta *</span><textarea className="field min-h-28" name="observations" value={transition.observations} required onChange={(event) => setTransition((current) => ({ ...current, observations: event.target.value }))} /></label>
             <label className="md:col-span-2">
-              <span className="label">URL del PDF de cédula (ambos lados) *</span>
-              <input className="field" name="idPdfUrl" type="url" pattern="https://.+" value={transition.idPdfUrl} required aria-describedby="status-pdf-hint" onChange={(event) => setTransition((current) => ({ ...current, idPdfUrl: event.target.value }))} />
-              <span id="status-pdf-hint" className="mt-2 block text-sm text-slate-500">Use un enlace HTTPS. Para Google Drive, comparta el PDF con la cuenta de servicio y active Google Drive API en el proyecto de Google Cloud. Para enlaces externos, solo se verifica la extensión .pdf. No se suben archivos desde este formulario; mantenga los datos privados.</span>
+              <span className="label">Enlace del documento de cédula (ambos lados) *</span>
+              <input className="field" name="idPdfUrl" type="url" pattern="https://.+" maxLength={2000} value={transition.idPdfUrl} required aria-describedby="status-pdf-hint" onChange={(event) => setTransition((current) => ({ ...current, idPdfUrl: event.target.value }))} />
+              <span id="status-pdf-hint" className="mt-2 block text-sm text-slate-500">Pegue un enlace HTTPS de Drive u otro servicio. Se acepta cualquier formato. Solo se guarda el enlace (máximo 2000 caracteres), no el archivo ni su tamaño. Compruebe que el personal autorizado pueda abrirlo y mantenga los datos privados.</span>
             </label>
           </>}
           {delivered && <label><span className="label">Número de matrícula *</span><input className="field" name="licenseNumber" value={transition.licenseNumber} required onChange={(event) => setTransition((current) => ({ ...current, licenseNumber: event.target.value }))} /></label>}
@@ -179,7 +179,7 @@ function HistoryDetails({ item }: { item: MotorcycleHistory }) {
   const labels: Record<string, string> = {
     code: "Código", description: "Descripción", brand: "Marca", chassisNumber: "Número de chasis",
     observations: "Observaciones", receivedAt: "Recepción", invoiceNumber: "Número de factura",
-    idPdfUrl: "URL del documento PDF", licenseNumber: "Número de matrícula", status: "Estado",
+    idPdfUrl: "Enlace del documento de cédula", licenseNumber: "Número de matrícula", status: "Estado",
     branch: "Sucursal", createdBy: "Registrada por", updatedAt: "Última actualización",
     updatedBy: "Actualizada por", stateChangedAt: "Último cambio de estado", revision: "Revisión"
   };

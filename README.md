@@ -88,11 +88,11 @@ La entrega requiere numero de matricula. Se permite retroceder con confirmacion 
 Registro y movimiento de historial se guardan juntos en una peticion atomica a Sheets.
 Las revisiones rechazan ediciones basadas en datos desactualizados; Sheets no es una base transaccional con bloqueo entre escritores simultaneos.
 
-La cedula se ingresa como URL, no se sube el archivo. Solo se acepta HTTPS.
-Para enlaces externos se exige extension `.pdf` en la ruta; no se descarga el contenido ni se verifica su MIME,
-para evitar consultas del servidor a direcciones arbitrarias. El administrador debe comprobar ambas caras del documento.
-Para enlaces de Google Drive se verifica `mimeType=application/pdf` y que no este en la papelera.
-Habilita Google Drive API y comparte el PDF con el correo de la Service Account como Lector.
+La cedula se ingresa como URL HTTPS, no se sube el archivo. Se admite cualquier formato y enlaces de Drive.
+Se valida la URL (maximo 2000 caracteres, sin credenciales), sin consultar Drive API ni descargar archivos.
+No se verifica disponibilidad, tipo MIME, contenido ni tamano del archivo externo.
+El administrador debe comprobar que el enlace abra, contenga ambas caras y tenga los permisos apropiados.
+La columna existente `PDF cedula` se conserva para no romper datos guardados, pero admite enlaces de cualquier formato.
 Manten restringidos los documentos de identidad, no los publiques ni los compartas con cualquier persona que tenga el enlace.
 No se exponen motos ni documentos en el portal publico.
 

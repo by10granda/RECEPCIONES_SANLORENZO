@@ -52,9 +52,9 @@ try {
   const change = (body) => request(`/api/motos/${moto.id}/estado`, "POST", { revision: moto.revision, ...body }, cookie);
   assert.equal((await change({ status: "VENDIDA CON MATRICULA EN PROCESO" })).status, 422);
   const sale = { status: "VENDIDA CON MATRICULA EN PROCESO", invoiceNumber: "FACTURA-PRUEBA", observations: "Venta de prueba", idPdfUrl: "https://example.com/cedula.jpg" };
-  assert.equal((await change(sale)).status, 422);
+  assert.equal((await change({ ...sale, idPdfUrl: "javascript:alert(1)" })).status, 422);
   assert.equal((await change({ ...sale, idPdfUrl: "http://example.com/cedula.pdf" })).status, 422);
-  const sold = await change({ ...sale, idPdfUrl: "https://example.com/cedula.pdf" });
+  const sold = await change({ ...sale, idPdfUrl: "https://drive.google.com/file/d/documento-de-prueba/view?usp=sharing" });
   assert.equal(sold.status, 200, sold.data.error);
   const staleRevision = moto.revision;
   moto = sold.data.motorcycle;
@@ -79,7 +79,7 @@ try {
   const persisted = await sheets.spreadsheets.values.get({ spreadsheetId, range: "MOTOS!A2:Q" });
   const stored = persisted.data.values.find((row) => row[0] === moto.id);
   assert.equal(stored[2], "DESCRIPCION CORREGIDA PRUEBA");
-  assert.equal(stored[8], "https://example.com/cedula.pdf");
+  assert.equal(stored[8], "https://drive.google.com/file/d/documento-de-prueba/view?usp=sharing");
   assert.equal(stored[9], "PRUEBA-001");
   assert.equal(stored[11], "SAN LORENZO");
   const guaranteesAfter = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID, range: "GARANTIAS!A:AC" });

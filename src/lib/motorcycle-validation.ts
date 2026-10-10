@@ -8,7 +8,7 @@ export const motorcycleEditSchema = motorcycleCreateSchema.extend({ observations
 export const motorcycleStatusSchema = z.object({ status: z.enum(MOTORCYCLE_STATUSES), observations: text.optional(), invoiceNumber: text.max(100).optional(), idPdfUrl: text.optional(), licenseNumber: text.max(100).optional(), revision: required });
 
 export function requiredMotorcycleFields(status: MotorcycleStatus, data: { invoiceNumber: string; observations: string; idPdfUrl: string; licenseNumber: string }) {
-  if (status !== "DISPONIBLE" && (!data.invoiceNumber || !data.observations || !data.idPdfUrl)) return "Para una moto vendida debe ingresar factura, observaciones y enlace al PDF de la cédula.";
+  if (status !== "DISPONIBLE" && (!data.invoiceNumber || !data.observations || !data.idPdfUrl)) return "Para una moto vendida debe ingresar factura, observaciones y enlace al documento de cédula.";
   if (status === "MATRICULA ENTREGADA" && !data.licenseNumber) return "Debe ingresar el número de matrícula.";
   return null;
 }

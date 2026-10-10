@@ -94,9 +94,9 @@ export function MotorcycleForm({ motorcycle, onSaved, onCancel }: {
             <label><span className="label">Número de factura</span><input className="field" name="invoiceNumber" value={form.invoiceNumber} onChange={(event) => set("invoiceNumber", event.target.value)} /></label>
             <label><span className="label">Número de matrícula</span><input className="field" name="licenseNumber" value={form.licenseNumber} onChange={(event) => set("licenseNumber", event.target.value)} /></label>
             <label className="md:col-span-2">
-              <span className="label">URL del PDF de cédula (ambos lados)</span>
-              <input className="field" name="idPdfUrl" type="url" pattern="https://.+" value={form.idPdfUrl} onChange={(event) => set("idPdfUrl", event.target.value)} aria-describedby="edit-pdf-hint" />
-              <span id="edit-pdf-hint" className="mt-2 block text-sm text-slate-500">Use un enlace HTTPS. Para Google Drive, comparta el PDF con la cuenta de servicio y active Google Drive API en el proyecto de Google Cloud. Para enlaces externos, solo se verifica la extensión .pdf. No se suben archivos desde este formulario; mantenga los datos privados.</span>
+              <span className="label">Enlace del documento de cédula (ambos lados)</span>
+              <input className="field" name="idPdfUrl" type="url" pattern="https://.+" maxLength={2000} value={form.idPdfUrl} onChange={(event) => set("idPdfUrl", event.target.value)} aria-describedby="edit-pdf-hint" />
+              <span id="edit-pdf-hint" className="mt-2 block text-sm text-slate-500">Pegue un enlace HTTPS de Drive u otro servicio. Se acepta cualquier formato. Solo se guarda el enlace (máximo 2000 caracteres), no el archivo ni su tamaño. Compruebe que el personal autorizado pueda abrirlo y mantenga los datos privados.</span>
             </label>
             <label className="md:col-span-2"><span className="label">Observaciones</span><textarea className="field min-h-28" name="observations" value={form.observations} onChange={(event) => set("observations", event.target.value)} /></label>
           </>}
